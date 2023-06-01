@@ -42,6 +42,6 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 	for key, element := range requestData {
 		fmt.Println("Key:", key, "=>", "Element:", element)
 	}
-
-	return "{\"Msg\" : \"Success\"}", err
+	Message := requestData["Msg"].(string)
+	return "{\"Msg\" : \"" + Message + "\"}", err
 }
