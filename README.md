@@ -72,5 +72,5 @@ The interaction flow within the system is as follows:
 2) JSON should have a component `Msg : <string>`, following the structure in the `example_service.thrift` idl
 
 # 4 Design Document
-The design document can be accessed here: 
+The design document, which includes the projected timeline at the end, can be accessed here : 
 https://docs.google.com/document/d/19cSJfAP8_TKRUjOMC_lAO5g-itLNmyKLcib8Qp2RyqQ/edit
