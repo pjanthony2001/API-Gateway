@@ -71,3 +71,6 @@ The interaction flow within the system is as follows:
 1) Send a GET request with the following command `curl -X GET localhost:8080 -d <JSON HERE>`
 2) JSON should have a component `Msg : <string>`, following the structure in the `example_service.thrift` idl
 
+# 4 Design Document
+The design document can be accessed here: 
+https://docs.google.com/document/d/19cSJfAP8_TKRUjOMC_lAO5g-itLNmyKLcib8Qp2RyqQ/edit
