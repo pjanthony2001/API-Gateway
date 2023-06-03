@@ -59,6 +59,11 @@ The interaction flow within the system is as follows:
 
 # 3 How to run 
 
+## 3.0 Prerequisites
+1) Install Golang https://go.dev/doc/install
+2) Install Hertz https://www.cloudwego.io/docs/hertz/getting-started/
+3) Install Kitex https://www.cloudwego.io/docs/kitex/getting-started/
+
 ## 3.1 Set up the Hertz Server
 1) Open a terminal window and navigate to `hertz-server` directory
 2) `go run .` to start the server on `localhost:8080`
