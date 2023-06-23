@@ -21,13 +21,16 @@ import (
 // Echo .
 // @router echo/query [GET]
 func Echo(ctx context.Context, c *app.RequestContext) {
-	// var err error
-	// var req api.Request
-	// err = c.BindAndValidate(&req)
-	// if err != nil {
-	// 	c.String(consts.StatusBadRequest, err.Error())
-	// 	return
-	// }
+	var err error
+	var req api.Request
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+
+	fmt.Println(req.GetFlag())
+	fmt.Println(req.GetMessage())
 
 	p, err := generic.NewThriftFileProvider("../idl/example_service.thrift")
 	if err != nil {
@@ -42,7 +45,7 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		panic(err)
 	}
 
-	respRpc, err := cli.GenericCall(ctx, "ExampleMethod", string(c.Request.Body())) //pass json through
+	respRpc, err := cli.GenericCall(ctx, "ExampleMethod", ParseRequest(req.GetMessage())) //pass json through
 	if err != nil {
 		panic(err)
 	}
@@ -61,7 +64,11 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 
 	resp := &api.Response{
 		Message: Message,
-		Flag:    200,
+		Flag:    req.GetFlag(),
 	}
 	c.JSON(consts.StatusOK, resp)
+}
+
+func ParseRequest(Message string) (json string) {
+	return fmt.Sprintf("{\"Msg\" : \"%s\"}", Message)
 }

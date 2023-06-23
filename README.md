@@ -73,9 +73,10 @@ The interaction flow within the system is as follows:
 2) `go run .` to start the server on `localhost:8888`
 
 ## 3.3 Send a HTTP Request
-1) Send a GET request with the following command `curl -X GET localhost:8080/echo/query -d <JSON HERE>`
-2) JSON should have a component `"Msg" : "<string>"`, following the structure in the `example_service.thrift` idl
-3) Ensure that your JSON request utilises `'{"<key>" : "<element>"}'` structure. Ex: `'{"Msg" : "Hallo"}'`
+1) Send a GET request with the following command `curl -X GET localhost:8080/echo/query --json <JSON HERE>`
+2) JSON should have `"Message" : "<string>"` and `"Flag" : <integer>`, following the structure in the `hertz.thrift` idl
+3) Ensure that your JSON request utilises `'{"<key>" : "<element>"}'` structure. Ex: `'{"Message" : "Hallo"}'`
+4) Alternatively you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query --json "@message.json"`
 
 # 4 Design Document
 The design document, which includes the projected timeline at the end, can be accessed here : 
