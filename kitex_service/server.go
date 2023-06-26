@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
 
 	jsoniter "github.com/json-iterator/go"
 
@@ -11,7 +12,6 @@ import (
 
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	"github.com/kitex-contrib/registry-nacos/example/hello/kitex_gen/api"
 	"github.com/kitex-contrib/registry-nacos/registry"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -28,12 +28,13 @@ func main() {
 	// the nacos client config
 	cc := constant.ClientConfig{
 		NamespaceId:         "public",
-		TimeoutMs:           100000,
+		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
 		LogDir:              "/tmp/nacos/log",
 		CacheDir:            "/tmp/nacos/cache",
 		LogLevel:            "info",
-		// more ...
+		Username:            "your-name",
+		Password:            "your-password",
 	}
 
 	cli, err := clients.NewNamingClient(
@@ -56,11 +57,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	add, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	if err != nil {
+		panic(err)
+	}
+
 	svr := genericserver.NewServer(
 		new(GenericServiceImpl),
 		g,
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "Hello"}),
-		server.WithRegistry(registry.NewNacosRegistry(cli)))
+		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "ExampleService"}),
+		server.WithServiceAddr(add),
+		server.WithRegistry(registry.NewNacosRegistry(cli)),
+	)
 
 	if err != nil {
 		panic(err)
@@ -85,13 +94,4 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 	}
 	Message := requestData["Msg"].(string)
 	return "{\"Msg\" : \"" + Message + "\"}", err
-}
-
-type HelloImpl struct{}
-
-func (h *HelloImpl) Echo(_ context.Context, req *api.Request) (resp *api.Response, err error) {
-	resp = &api.Response{
-		Message: req.Message,
-	}
-	return
 }
