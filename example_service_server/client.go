@@ -20,18 +20,21 @@ import (
 	"time"
 
 	"github.com/cloudwego/kitex/client"
-	"github.com/kitex-contrib/registry-nacos/example/hello/kitex_gen/api"
-	"github.com/kitex-contrib/registry-nacos/example/hello/kitex_gen/api/hello"
+	//"github.com/kitex-contrib/registry-nacos/example/hello/kitex_gen/api"
+	//"github.com/kitex-contrib/registry-nacos/example/hello/kitex_gen/api/hello"
 	"github.com/kitex-contrib/registry-nacos/resolver"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
+
+	"github.com/cloudwego/kitex/client/genericclient"
+	"github.com/cloudwego/kitex/pkg/generic"
 )
 
 func main() {
 	// the nacos server config
 	sc := []constant.ServerConfig{
-		*constant.NewServerConfig("127.0.0.0", 8),
+		*constant.NewServerConfig("127.0.0.1", 8848),
 	}
 
 	// the nacos client config
@@ -54,17 +57,29 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	newClient := hello.MustNewClient(
-		"Hello",
+
+	p, err := generic.NewThriftFileProvider("../idl/example_service.thrift")
+	if err != nil {
+		panic(err)
+	}
+	g, err := generic.JSONThriftGeneric(p)
+	if err != nil {
+		panic(err)
+	}
+
+	newClient, err := genericclient.NewClient(
+		"echo",
+		g,
 		client.WithResolver(resolver.NewNacosResolver(cli)),
 		client.WithRPCTimeout(time.Second*3),
+		client.WithHostPorts("127.0.0.1:8888"),
 	)
 	for {
-		resp, err := newClient.Echo(context.Background(), &api.Request{Message: "Hello"})
+		respRpc, err := newClient.GenericCall(context.Background(), "ExampleMethod", "{\"Msg\" : \" WHAT TO DO \"}")
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(resp)
+		log.Println(respRpc)
 		time.Sleep(time.Second)
 	}
 }
