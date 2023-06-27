@@ -37,7 +37,7 @@ Kitex is a high-performance, scalable RPC framework that supports Thrift-based c
 
 Kitex's Generic-Call feature for JSON to Thrift translation. 
 Kitex’s Round Robin Load Balancing feature to distribute requests amongst backend servers. 
-Kitex’s Service Registry feature to seamlessly integrate new servers into the network
+Kitex’s Service Registry feature to seamlessly integrate new servers into the network using Nacos
 
 ## 2.3 Interaction Flow
 
@@ -63,13 +63,21 @@ The interaction flow within the system is as follows:
 1) Install Golang https://go.dev/doc/install
 2) Install Hertz https://www.cloudwego.io/docs/hertz/getting-started/
 3) Install Kitex https://www.cloudwego.io/docs/kitex/getting-started/
+4)  Install Nacos https://nacos.io/en-us/docs/quick-start.html
+5) Install hz run `go install github.com/cloudwego/hertz/cmd/hz@v0.5.0`
+
 
 ## 3.1 Set up the Hertz Server
 1) Open a terminal window and navigate to `hertz-server` directory
 2) `go run .` to start the server on `localhost:8080`
 
-## 3.2 Set up the Kitex Server
-1) Open a terminal window and navigate to the `kitex_server` directory
+   
+## 3.2 Set up a Nacos Registry Servery
+1) Open a terminal window in the directory where Nacos was installed
+2) `./startup.cmd -m standalone` to start the server on `localhost:8848`
+
+## 3.1 Set up the Kitex Service
+1) Open a terminal window and navigate to the `kitex_service` directory
 2) `go run .` to start the server on `localhost:8888`
 
 ## 3.3 Send a HTTP Request
