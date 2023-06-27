@@ -16,6 +16,13 @@ import (
 	client "github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
+
+	"github.com/kitex-contrib/registry-nacos/resolver"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
+
+	"github.com/cloudwego/kitex/pkg/loadbalance"
 )
 
 // Echo .
@@ -40,7 +47,41 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		panic(err)
 	}
-	cli, err := genericclient.NewClient("echo", g, client.WithHostPorts("127.0.0.1:8888"))
+
+	// the nacos server config
+	sc := []constant.ServerConfig{
+		*constant.NewServerConfig("127.0.0.1", 8848),
+	}
+
+	// the nacos client config
+	cc := constant.ClientConfig{
+		NamespaceId:         "public",
+		TimeoutMs:           5000,
+		NotLoadCacheAtStart: true,
+		LogDir:              "/tmp/nacos/log",
+		CacheDir:            "/tmp/nacos/cache",
+		LogLevel:            "info",
+		Username:            "your-name",
+		Password:            "your-password",
+	}
+
+	naco_client, err := clients.NewNamingClient(
+		vo.NacosClientParam{
+			ClientConfig:  &cc,
+			ServerConfigs: sc,
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	cli, err := genericclient.NewClient(
+		"ExampleService",
+		g,
+		client.WithResolver(resolver.NewNacosResolver(naco_client)),
+		client.WithLoadBalancer(loadbalance.NewWeightedBalancer()),
+	)
+
 	if err != nil {
 		panic(err)
 	}
