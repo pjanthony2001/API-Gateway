@@ -72,7 +72,7 @@ The interaction flow within the system is as follows:
 2) `go run .` to start the server on `localhost:8080`
 
    
-## 3.2 Set up a Nacos Registry Servery
+## 3.2 Set up a Nacos Registry Server
 1) Open a terminal window in the directory where Nacos was installed
 2) `./startup.cmd -m standalone` to start the server on `localhost:8848`
 
