@@ -30,11 +30,11 @@ func TestNacosServiceDiscovery(t *testing.T) {
 	data := sb["hosts"].([]interface{})[0].(map[string]interface{})
 
 	if data["ip"].(string) != "127.0.0.1" {
-		t.Errorf("Wrong IP addr for instance")
+		t.Errorf("Wrong IP addr for instance, given: %s", data["ip"].(string))
 	}
 
 	if data["port"].(float64) != float64(8888) {
-		t.Errorf("Wrong port for instance")
+		t.Errorf("Wrong port for instance, given: %f", data["port"].(float64))
 	}
 
 }
