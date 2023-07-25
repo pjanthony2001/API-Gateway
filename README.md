@@ -63,7 +63,7 @@ The interaction flow within the system is as follows:
 1) Install Golang https://go.dev/doc/install
 2) Install Hertz https://www.cloudwego.io/docs/hertz/getting-started/
 3) Install Kitex https://www.cloudwego.io/docs/kitex/getting-started/
-4)  Install Nacos https://nacos.io/en-us/docs/quick-start.html
+4) Install Nacos https://nacos.io/en-us/docs/quick-start.html
 5) Install hz run `go install github.com/cloudwego/hertz/cmd/hz@v0.5.0`
 
 
@@ -87,6 +87,13 @@ The interaction flow within the system is as follows:
 3) Ensure that your JSON request utilises `'{"<key>" : "<element>"}'` structure. Ex: `'{"Message" : "Hallo"}'`
 4) Alternatively you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query --json "@message.json"`
 
-# 4 Design Document
+
+# 4 Testing
+
+## 4.1 How to run tests
+1) Navigate to the `tests` directory
+2) `go test -v` to run all the tests in a verbose format
+
+# 5 Design Document
 The design document, which includes the projected timeline at the end, can be accessed here : 
 https://docs.google.com/document/d/19cSJfAP8_TKRUjOMC_lAO5g-itLNmyKLcib8Qp2RyqQ/edit
