@@ -87,6 +87,14 @@ type GenericServiceImpl struct {
 }
 
 func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, request interface{}) (response interface{}, err error) {
+	if method == "ExampleMethod" {
+		return ExampleMethod(ctx, request)
+	}
+
+	return ctx, fmt.Errorf("Did not find available method: was given %s", method)
+}
+
+func ExampleMethod(ctx context.Context, request interface{}) (response interface{}, err error) {
 	var requestData map[string]interface{}
 	err = jsoniter.Unmarshal([]byte(request.(string)), &requestData)
 	for key, element := range requestData {
