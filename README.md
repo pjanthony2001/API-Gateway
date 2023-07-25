@@ -74,7 +74,8 @@ The interaction flow within the system is as follows:
    
 ## 3.2 Set up a Nacos Registry Server
 1) Open a terminal window in the directory where Nacos was installed
-2) `./startup.cmd -m standalone` to start the server on `localhost:8848`
+2) Navigate to the `/nacos/bin` directory
+3) `./startup.cmd -m standalone` to start the server on `localhost:8848`
 
 ## 3.1 Set up the Kitex Service
 1) Open a terminal window and navigate to the `kitex_service` directory
