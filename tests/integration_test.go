@@ -15,19 +15,32 @@ func TestIntegration(t *testing.T) {
 		wantMessage      string
 		wantFlag         int32
 		additionalInputs string
+		sendMessage      string
 	}{
-		{"empty json should be empty", "/echo/query", "", 0, ""},
-		{"message in json should be message", "/echo/query", "Message", 0, ""},
-		{"flag in json should be flag", "/echo/query", "", 300, ""},
-		{"message and flag in json should be message and flag json", "/echo/query", "Hello", 211, ""},
-		{"Additional inputs with empty request should have no effect", "/echo/query", "", 0, "Additional"},
-		{"Additional inputs with full request should have no effect", "/echo/query", "Hallo", 212, "Additional"},
+		{"empty json should be empty [default]", "/echo/query", "Parsed Message from Method 1: ", 0, "", ""},
+		{"message in json should be message [default]", "/echo/query", "Parsed Message from Method 1: Message", 0, "", "Message"},
+		{"flag in json should be flag [default]", "/echo/query", "Parsed Message from Method 1: ", 300, "", ""},
+		{"message and flag in json should be message and flag json [default]", "/echo/query", "Parsed Message from Method 1: Hello", 211, "", "Hello"},
+		{"Additional inputs with empty request should have no effect [default]", "/echo/query", "Parsed Message from Method 1: ", 0, "Additional", ""},
+		{"Additional inputs with full request should have no effect [default]", "/echo/query", "Parsed Message from Method 1: Hallo", 212, "Additional", "Hallo"},
+		{"empty json should be empty [method=1]", "/echo/query?method=1", "Parsed Message from Method 1: ", 0, "", ""},
+		{"message in json should be message [method=1]", "/echo/query?method=1", "Parsed Message from Method 1: Message", 0, "", "Message"},
+		{"flag in json should be flag [method=1]", "/echo/query?method=1", "Parsed Message from Method 1: ", 300, "", ""},
+		{"message and flag in json should be message and flag json [method=1]", "/echo/query?method=1", "Parsed Message from Method 1: Hello", 211, "", "Hello"},
+		{"Additional inputs with empty request should have no effect [method=1]", "/echo/query?method=1", "Parsed Message from Method 1: ", 0, "Additional", ""},
+		{"Additional inputs with full request should have no effect [method=1]", "/echo/query?method=1", "Parsed Message from Method 1: Hallo", 212, "Additional", "Hallo"},
+		{"empty json should be empty [method=2]", "/echo/query?method=2", "Parsed Message from Method 2: ", 0, "", ""},
+		{"message in json should be message [method=2]", "/echo/query?method=2", "Parsed Message from Method 2: Message", 0, "", "Message"},
+		{"flag in json should be flag [method=2]", "/echo/query?method=2", "Parsed Message from Method 2: ", 300, "", ""},
+		{"message and flag in json should be message and flag json [method=2]", "/echo/query?method=2", "Parsed Message from Method 2: Hello", 211, "", "Hello"},
+		{"Additional inputs with empty request should have no effect [method=2]", "/echo/query?method=2", "Parsed Message from Method 2: ", 0, "Additional", ""},
+		{"Additional inputs with full request should have no effect [method=2]", "/echo/query?method=2", "Parsed Message from Method 2: Hallo", 212, "Additional", "Hallo"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			data, err := json.Marshal(map[string]interface{}{"Message": tt.wantMessage, "Flag": tt.wantFlag, "Additional": tt.additionalInputs})
+			data, err := json.Marshal(map[string]interface{}{"Message": tt.sendMessage, "Flag": tt.wantFlag, "Additional": tt.additionalInputs})
 			if err != nil {
 				t.Fatalf("Error from creating json data %s", err.Error())
 			}

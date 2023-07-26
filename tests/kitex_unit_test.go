@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	client "github.com/cloudwego/kitex/client"
@@ -17,7 +18,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 )
 
-const kitexURL = "127.0.0.1:8888"
+var kitexURLs = map[int32]string{1: "127.0.0.1:8888", 2: "127.0.0.1:8885"}
 
 func JSONstring(msg string, additional string) (result string, err error) {
 	data, err := json.Marshal(map[string]interface{}{"Msg": msg, "Additional": additional})
@@ -25,24 +26,24 @@ func JSONstring(msg string, additional string) (result string, err error) {
 	return
 }
 
-func GenericServiceClient() (genericclient.Client, error) {
+func GenericServiceClient(kitex int32) (genericclient.Client, error) {
 
-	g, err := GenericServiceConfig()
+	g, err := GenericServiceConfig(kitex)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return genericclient.NewClient(
-		"ExampleService",
+		fmt.Sprintf("ExampleService%d", kitex),
 		g,
-		client.WithHostPorts(kitexURL),
+		client.WithHostPorts(kitexURLs[kitex]),
 	)
 }
 
-func GenericServiceClientWithResolver() (genericclient.Client, error) {
+func GenericServiceClientWithResolver(kitex int32) (genericclient.Client, error) {
 
-	g, err := GenericServiceConfig()
+	g, err := GenericServiceConfig(kitex)
 
 	if err != nil {
 		return nil, err
@@ -55,16 +56,16 @@ func GenericServiceClientWithResolver() (genericclient.Client, error) {
 	}
 
 	return genericclient.NewClient(
-		"ExampleService",
+		fmt.Sprintf("ExampleService%d", kitex),
 		g,
 		resolverOption,
 		client.WithLoadBalancer(loadbalance.NewWeightedBalancer()),
 	)
 }
 
-func GenericServiceConfig() (generic.Generic, error) {
+func GenericServiceConfig(kitex int32) (generic.Generic, error) {
 
-	p, err := generic.NewThriftFileProvider("../idl/example_service.thrift")
+	p, err := generic.NewThriftFileProvider(fmt.Sprintf("../idl/example_service%d.thrift", kitex))
 	if err != nil {
 		return nil, err
 	}
@@ -102,25 +103,35 @@ func NacosConfig() (client.Option, error) {
 func TestKitex(t *testing.T) {
 
 	var tests = []struct {
-		name             string
-		wantMsg          string
-		additionalInputs string
-		withResolver     bool
+		name                   string
+		sendMessage            string
+		additionalInputs       string
+		withResolver           bool
+		withKitexServiceNumber int32
+		wantMessage            string
 	}{
-		{"empty message should be empty", "", "", false},
-		{"message should be message", "message", "", false},
-		{"empty with additional should be empty", "", "additional", false},
-		{"msg with additional should be msg", "messages", "additional", false},
-		{"empty message with resolver should be empty", "", "", true},
-		{"message  with resolver should be message", "message", "", true},
-		{"empty with additional and resolver should be empty", "", "additional", true},
-		{"msg with additional and resolver should be msg", "messages", "additional", true},
+		{"empty message should be empty", "", "", false, 1, "Parsed Message from Method 1: "},
+		{"message should be message", "message", "", false, 1, "Parsed Message from Method 1: message"},
+		{"empty with additional should be empty", "", "additional", false, 1, "Parsed Message from Method 1: "},
+		{"msg with additional should be msg", "messages", "additional", false, 1, "Parsed Message from Method 1: messages"},
+		{"empty message with resolver should be empty", "", "", true, 1, "Parsed Message from Method 1: "},
+		{"message  with resolver should be message", "message", "", true, 1, "Parsed Message from Method 1: message"},
+		{"empty with additional and resolver should be empty", "", "additional", true, 1, "Parsed Message from Method 1: "},
+		{"msg with additional and resolver should be msg", "messages", "additional", true, 1, "Parsed Message from Method 1: messages"},
+		{"empty message should be empty", "", "", false, 2, "Parsed Message from Method 1: "},
+		{"message should be message", "message", "", false, 2, "Parsed Message from Method 1: message"},
+		{"empty with additional should be empty", "", "additional", false, 2, "Parsed Message from Method 1: "},
+		{"msg with additional should be msg", "messages", "additional", false, 2, "Parsed Message from Method 1: messages"},
+		{"empty message with resolver should be empty", "", "", true, 2, "Parsed Message from Method 1: "},
+		{"message  with resolver should be message", "message", "", true, 2, "Parsed Message from Method 1: message"},
+		{"empty with additional and resolver should be empty", "", "additional", true, 2, "Parsed Message from Method 1: "},
+		{"msg with additional and resolver should be msg", "messages", "additional", true, 2, "Parsed Message from Method 1: messages"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			data, err := JSONstring(tt.wantMsg, tt.additionalInputs)
+			data, err := JSONstring(tt.sendMessage, tt.additionalInputs)
 
 			if err != nil {
 				t.Errorf("Error in parsing JSON: %s", err.Error())
@@ -129,16 +140,16 @@ func TestKitex(t *testing.T) {
 			var cli genericclient.Client
 
 			if tt.withResolver {
-				cli, err = GenericServiceClientWithResolver()
+				cli, err = GenericServiceClientWithResolver(tt.withKitexServiceNumber)
 			} else {
-				cli, err = GenericServiceClient()
+				cli, err = GenericServiceClient(tt.withKitexServiceNumber)
 			}
 
 			if err != nil {
 				t.Errorf("Error in creating client: %s", err.Error())
 			}
 
-			respRpc, err := cli.GenericCall(context.Background(), "ExampleMethod", data)
+			respRpc, err := cli.GenericCall(context.Background(), "ExampleMethod1", data)
 
 			if err != nil {
 				t.Errorf("Error in generic call: %s", err.Error())
@@ -148,8 +159,8 @@ func TestKitex(t *testing.T) {
 			var sb map[string]interface{}
 			json.Unmarshal([]byte(respRpc.(string)), &sb)
 
-			if sb["Msg"] != tt.wantMsg {
-				t.Errorf("got %s, want %s", sb, tt.wantMsg)
+			if sb["Msg"] != tt.wantMessage {
+				t.Errorf("got %s, want %s", sb, tt.wantMessage)
 			}
 
 			if len(sb) != 2 {

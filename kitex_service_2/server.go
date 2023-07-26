@@ -58,7 +58,7 @@ func main() {
 		panic(err)
 	}
 
-	add, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8888")
+	add, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8885")
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +66,7 @@ func main() {
 	svr := genericserver.NewServer(
 		new(GenericServiceImpl),
 		g,
-		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "ExampleService1"}),
+		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: "ExampleService2"}),
 		server.WithServiceAddr(add),
 		server.WithRegistry(registry.NewNacosRegistry(cli)),
 	)
@@ -91,48 +91,16 @@ func (g *GenericServiceImpl) GenericCall(ctx context.Context, method string, req
 		return ExampleMethod1(ctx, request)
 	}
 
-	if method == "ExampleMethod2" {
-		return ExampleMethod2(ctx, request)
-	}
-
-	return ctx, fmt.Errorf("did not find available method: was given %s", method)
+	return ctx, fmt.Errorf("Did not find available method: was given %s", method)
 }
 
 func ExampleMethod1(ctx context.Context, request interface{}) (response interface{}, err error) {
 	var requestData map[string]interface{}
 	err = jsoniter.Unmarshal([]byte(request.(string)), &requestData)
-
-	if err != nil {
-		panic(err)
-	}
-
 	for key, element := range requestData {
 		fmt.Println("Key:", key, "=>", "Element:", element)
 	}
 	Message := "Parsed Message from Method 1: " + requestData["Msg"].(string)
-
-	jsonstring, err := jsoniter.MarshalToString(
-		struct {
-			Msg string
-		}{
-			Msg: Message,
-		})
-
-	return jsonstring, err
-}
-
-func ExampleMethod2(ctx context.Context, request interface{}) (response interface{}, err error) {
-	var requestData map[string]interface{}
-	err = jsoniter.Unmarshal([]byte(request.(string)), &requestData)
-
-	if err != nil {
-		panic(err)
-	}
-
-	for key, element := range requestData {
-		fmt.Println("Key:", key, "=>", "Element:", element)
-	}
-	Message := "Parsed Message from Method 2: " + requestData["Msg"].(string)
 
 	jsonstring, err := jsoniter.MarshalToString(
 		struct {
