@@ -100,7 +100,7 @@ func ExampleMethod1(ctx context.Context, request interface{}) (response interfac
 	for key, element := range requestData {
 		fmt.Println("Key:", key, "=>", "Element:", element)
 	}
-	Message := "Parsed Message from Method 1: " + requestData["Msg"].(string)
+	Message := "Parsed Message from Service 2 and Method 1: " + requestData["Msg"].(string)
 
 	jsonstring, err := jsoniter.MarshalToString(
 		struct {

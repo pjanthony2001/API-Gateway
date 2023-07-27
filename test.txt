@@ -1,0 +1,8 @@
+
+		{"empty json should be empty [service=1&method=2]", "/echo/query?service=1&method=2", 0, "", "", 1, 2},
+		{"message in json should be message [service=1&method=2]", "/echo/query?service=1&method=2", 0, "", "Message", 1, 2},
+		{"flag in json should be flag [service=1&method=2]", "/echo/query?service=1&method=2", 300, "", "", 1, 2},
+		{"message and flag in json should be message and flag json [service=1&method=2]", "/echo/query?service=1&method=2", 212, "", "Hello", 1, 2},
+		{"Additional inputs with empty request should have no effect [service=1&method=2]", "/echo/query?service=1&method=2", 0, "Additional", "", 1, 2},
+		{"Additional inputs with full request should have no effect [service=1&method=2]", "/echo/query?service=1&method=2", 212, "Additional", "Hallo", 1, 2},
+

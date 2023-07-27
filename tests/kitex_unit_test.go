@@ -108,24 +108,32 @@ func TestKitex(t *testing.T) {
 		additionalInputs       string
 		withResolver           bool
 		withKitexServiceNumber int32
-		wantMessage            string
+		withKitexMethodNumber  int32
 	}{
-		{"empty message should be empty", "", "", false, 1, "Parsed Message from Method 1: "},
-		{"message should be message", "message", "", false, 1, "Parsed Message from Method 1: message"},
-		{"empty with additional should be empty", "", "additional", false, 1, "Parsed Message from Method 1: "},
-		{"msg with additional should be msg", "messages", "additional", false, 1, "Parsed Message from Method 1: messages"},
-		{"empty message with resolver should be empty", "", "", true, 1, "Parsed Message from Method 1: "},
-		{"message  with resolver should be message", "message", "", true, 1, "Parsed Message from Method 1: message"},
-		{"empty with additional and resolver should be empty", "", "additional", true, 1, "Parsed Message from Method 1: "},
-		{"msg with additional and resolver should be msg", "messages", "additional", true, 1, "Parsed Message from Method 1: messages"},
-		{"empty message should be empty", "", "", false, 2, "Parsed Message from Method 1: "},
-		{"message should be message", "message", "", false, 2, "Parsed Message from Method 1: message"},
-		{"empty with additional should be empty", "", "additional", false, 2, "Parsed Message from Method 1: "},
-		{"msg with additional should be msg", "messages", "additional", false, 2, "Parsed Message from Method 1: messages"},
-		{"empty message with resolver should be empty", "", "", true, 2, "Parsed Message from Method 1: "},
-		{"message  with resolver should be message", "message", "", true, 2, "Parsed Message from Method 1: message"},
-		{"empty with additional and resolver should be empty", "", "additional", true, 2, "Parsed Message from Method 1: "},
-		{"msg with additional and resolver should be msg", "messages", "additional", true, 2, "Parsed Message from Method 1: messages"},
+		{"empty message should be empty", "", "", false, 1, 1},
+		{"message should be message", "message", "", false, 1, 1},
+		{"empty with additional should be empty", "", "additional", false, 1, 1},
+		{"msg with additional should be msg", "messages", "additional", false, 1, 1},
+		{"empty message with resolver should be empty", "", "", true, 1, 1},
+		{"message  with resolver should be message", "message", "", true, 1, 1},
+		{"empty with additional and resolver should be empty", "", "additional", true, 1, 1},
+		{"msg with additional and resolver should be msg", "messages", "additional", true, 1, 1},
+		{"empty message should be empty", "", "", false, 1, 2},
+		{"message should be message", "message", "", false, 1, 2},
+		{"empty with additional should be empty", "", "additional", false, 1, 2},
+		{"msg with additional should be msg", "messages", "additional", false, 1, 2},
+		{"empty message with resolver should be empty", "", "", true, 1, 2},
+		{"message  with resolver should be message", "message", "", true, 1, 2},
+		{"empty with additional and resolver should be empty", "", "additional", true, 1, 2},
+		{"msg with additional and resolver should be msg", "messages", "additional", true, 1, 2},
+		{"empty message should be empty", "", "", false, 2, 1},
+		{"message should be message", "message", "", false, 2, 1},
+		{"empty with additional should be empty", "", "additional", false, 2, 1},
+		{"msg with additional should be msg", "messages", "additional", false, 2, 1},
+		{"empty message with resolver should be empty", "", "", true, 2, 1},
+		{"message  with resolver should be message", "message", "", true, 2, 1},
+		{"empty with additional and resolver should be empty", "", "additional", true, 2, 1},
+		{"msg with additional and resolver should be msg", "messages", "additional", true, 2, 1},
 	}
 
 	for _, tt := range tests {
@@ -149,7 +157,8 @@ func TestKitex(t *testing.T) {
 				t.Errorf("Error in creating client: %s", err.Error())
 			}
 
-			respRpc, err := cli.GenericCall(context.Background(), "ExampleMethod1", data)
+			method := fmt.Sprintf("ExampleMethod%d", tt.withKitexMethodNumber)
+			respRpc, err := cli.GenericCall(context.Background(), method, data)
 
 			if err != nil {
 				t.Errorf("Error in generic call: %s", err.Error())
@@ -159,8 +168,10 @@ func TestKitex(t *testing.T) {
 			var sb map[string]interface{}
 			json.Unmarshal([]byte(respRpc.(string)), &sb)
 
-			if sb["Msg"] != tt.wantMessage {
-				t.Errorf("got %s, want %s", sb, tt.wantMessage)
+			responseMessage := responseMessage(tt.withKitexServiceNumber, tt.withKitexMethodNumber, tt.sendMessage)
+
+			if sb["Msg"] != responseMessage {
+				t.Errorf("got %s, want %s", sb["Message"], responseMessage)
 			}
 
 			if len(sb) != 2 {

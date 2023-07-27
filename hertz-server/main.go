@@ -9,6 +9,8 @@ import (
 func main() {
 	h := server.Default(server.WithHostPorts("localhost:8080"))
 
+	h.Use()
+
 	register(h)
 	h.Spin()
 }

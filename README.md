@@ -77,15 +77,18 @@ The interaction flow within the system is as follows:
 2) Navigate to the `/nacos/bin` directory
 3) `./startup.cmd -m standalone` to start the server on `localhost:8848`
 
-## 3.1 Set up the Kitex Service
-1) Open a terminal window and navigate to the `kitex_service` directory
+## 3.1 Set up the Kitex Services
+1) Open a terminal window and navigate to the `kitex_service1` directory
 2) `go run .` to start the server on `localhost:8888`
+1) Open a terminal window and navigate to the `kitex_service2` directory
+2) `go run .` to start the server on `localhost:8885`
 
 ## 3.3 Send a HTTP Request
 1) Send a GET request with the following command `curl -X GET localhost:8080/echo/query --json <JSON HERE>`
 2) JSON should have `"Message" : "<string>"` and `"Flag" : <integer>`, following the structure in the `hertz.thrift` idl
 3) Ensure that your JSON request utilises `'{"<key>" : "<element>"}'` structure. Ex: `'{"Message" : "Hallo"}'`
 4) Alternatively you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query --json "@message.json"`
+5) Additionally, you can select which service you want to process the data by specifying a query `service=X`, where `X` is either `1` or `2`. You can also select which method you want to process the data by specifying a query `method=y` where `Y` is `1` or `2` for `Service 1` but `Y` is `1` for `Service 2`
 
 
 # 4 Testing

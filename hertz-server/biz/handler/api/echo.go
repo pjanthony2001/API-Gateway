@@ -35,6 +35,12 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+
+	service := c.Query("service")
+	if service == "" {
+		service = "1"
+	}
+
 	method := c.Query("method")
 	if method == "" {
 		method = "1"
@@ -80,7 +86,7 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	cli, err := genericclient.NewClient(
-		"ExampleService1",
+		"ExampleService"+service,
 		g,
 		client.WithResolver(resolver.NewNacosResolver(naco_client)),
 		client.WithLoadBalancer(loadbalance.NewWeightedBalancer()),
