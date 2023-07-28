@@ -84,8 +84,8 @@ func NacosConfig() (client.Option, error) {
 		NamespaceId:         "public",
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
-		LogDir:              "/tmp/nacos/log",
-		CacheDir:            "/tmp/nacos/cache",
+		LogDir:              "/tmp/nacos/log/test",
+		CacheDir:            "/tmp/nacos/cache/test",
 		LogLevel:            "info",
 		Username:            "your-name",
 		Password:            "your-password",
@@ -118,6 +118,7 @@ func TestKitex(t *testing.T) {
 		{"message  with resolver should be message", "message", "", true, 1, 1},
 		{"empty with additional and resolver should be empty", "", "additional", true, 1, 1},
 		{"msg with additional and resolver should be msg", "messages", "additional", true, 1, 1},
+
 		{"empty message should be empty", "", "", false, 1, 2},
 		{"message should be message", "message", "", false, 1, 2},
 		{"empty with additional should be empty", "", "additional", false, 1, 2},
@@ -126,6 +127,7 @@ func TestKitex(t *testing.T) {
 		{"message  with resolver should be message", "message", "", true, 1, 2},
 		{"empty with additional and resolver should be empty", "", "additional", true, 1, 2},
 		{"msg with additional and resolver should be msg", "messages", "additional", true, 1, 2},
+
 		{"empty message should be empty", "", "", false, 2, 1},
 		{"message should be message", "message", "", false, 2, 1},
 		{"empty with additional should be empty", "", "additional", false, 2, 1},
@@ -168,7 +170,7 @@ func TestKitex(t *testing.T) {
 			var sb map[string]interface{}
 			json.Unmarshal([]byte(respRpc.(string)), &sb)
 
-			responseMessage := responseMessage(tt.withKitexServiceNumber, tt.withKitexMethodNumber, tt.sendMessage)
+			responseMessage, _ := responseMessage(tt.withKitexServiceNumber, tt.withKitexMethodNumber, tt.sendMessage, "token")
 
 			if sb["Msg"] != responseMessage {
 				t.Errorf("got %s, want %s", sb["Message"], responseMessage)

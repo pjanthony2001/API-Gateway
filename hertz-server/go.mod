@@ -46,3 +46,7 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+require (
+	github.com/hertz-contrib/keyauth  v0.0.0-20221011055545-d02ab20cb1ca //direct
+)

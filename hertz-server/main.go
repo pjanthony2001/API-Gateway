@@ -3,14 +3,65 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/keyauth"
 )
 
 func main() {
 	h := server.Default(server.WithHostPorts("localhost:8080"))
 
-	h.Use()
+	h.Use(keyauth.New(
+		keyauth.WithContextKey("token"),
+		keyauth.WithKeyLookUp("query:token", ""),
+
+		keyauth.WithFilter(KeyAuthFilterHandler),
+		keyauth.WithSuccessHandler(KeyAuthSuccessHandler),
+		keyauth.WithErrorHandler(KeyAuthErrorHandler),
+		keyauth.WithValidator(KeyAuthValidatorHandler),
+	))
 
 	register(h)
 	h.Spin()
+}
+
+func KeyAuthSuccessHandler(ctx context.Context, c *app.RequestContext) {
+	c.Next(ctx)
+}
+
+// Edit the function below to add custom error handling
+func KeyAuthErrorHandler(ctx context.Context, c *app.RequestContext, err error) {
+	if err == keyauth.ErrMissingOrMalformedAPIKey {
+		c.AbortWithMsg(fmt.Sprintf("Error by keyauth: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	c.AbortWithMsg(fmt.Sprintf("Error by keyauth unauthorized: %s", c.Query("token")), http.StatusUnauthorized)
+}
+
+// Currently the token is token
+func KeyAuthValidatorHandler(ctx context.Context, c *app.RequestContext, s string) (result bool, err error) {
+	if s == "token" {
+		return true, nil
+	}
+	return false, nil
+}
+
+// Authentication is not requred for /ping or path /echo/query service 1, however it is required for service 2
+func KeyAuthFilterHandler(ctx context.Context, c *app.RequestContext) (res bool) {
+	path := string(c.Request.Path())
+	if path == "/ping" {
+		return true
+	}
+
+	if path == "/echo/query" {
+		service := c.Query("service")
+		return service == "1" || service == ""
+	}
+
+	return false
 }
