@@ -94,9 +94,10 @@ The interaction flow within the system is as follows:
 # 4 Testing
 
 ## 4.1 How to run tests
-1) Navigate to the `tests` directory
-2) `go test -v` to run all the tests in a verbose format
-NOTE: As there are nearly 200 tests
+1) Set up all the servers as seen in Step 3
+2) Navigate to the `tests` directory
+3) `go test -v -benchtime 20s -bench .` to run all tests in a verbose format
+NOTE: As there are nearly 200 individual tests and benchmarking, there will be some time delay for the tests to complete
 
 # 5 Design Document
 The design document, which includes the projected timeline at the end, can be accessed here : 
