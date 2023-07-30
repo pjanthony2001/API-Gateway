@@ -28,6 +28,20 @@ import (
 // Echo .
 // @router echo/query [GET]
 func Echo(ctx context.Context, c *app.RequestContext) {
+
+	//AUTHENTICATION
+	token, exist := c.Get("token")
+
+	if exist {
+		if token == "token" {
+			fmt.Printf("Token used was correct: %s", token)
+		}
+		fmt.Printf("Token used was incorrect: %s", token)
+	} else {
+		fmt.Printf("Token was not used")
+	}
+
+	//BIND AND VALIDATE
 	var err error
 	var req api.Request
 	err = c.BindAndValidate(&req)
@@ -49,6 +63,7 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 	fmt.Println(req.GetFlag())
 	fmt.Println(req.GetMessage())
 
+	//GENERIC SERVICE CONFIG
 	p, err := generic.NewThriftFileProvider("../idl/example_service1.thrift")
 	if err != nil {
 		panic(err)
@@ -58,6 +73,7 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		panic(err)
 	}
 
+	//NACOS CONFIG
 	// the nacos server config
 	sc := []constant.ServerConfig{
 		*constant.NewServerConfig("127.0.0.1", 8848),
@@ -71,8 +87,8 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		LogDir:              "/tmp/nacos/log/hertz",
 		CacheDir:            "/tmp/nacos/cache/hertz",
 		LogLevel:            "info",
-		Username:            "your-name",
-		Password:            "your-password",
+		//Username:            "your-name",
+		//Password:            "your-password",
 	}
 
 	naco_client, err := clients.NewNamingClient(
@@ -81,10 +97,12 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 			ServerConfigs: sc,
 		},
 	)
+
 	if err != nil {
 		panic(err)
 	}
 
+	//CREATE CLIENT
 	cli, err := genericclient.NewClient(
 		"ExampleService"+service,
 		g,
@@ -96,17 +114,20 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		panic(err)
 	}
 
+	//FORMAT REQUEST
 	jsonString, err := ParseRequest(req.GetMessage())
 
 	if err != nil {
 		panic(err)
 	}
 
+	//SEND GENERIC REQUEST/RECIEVE GENERIC RESPONSE
 	respRpc, err := cli.GenericCall(ctx, "ExampleMethod"+method, jsonString) //pass json through
 	if err != nil {
 		panic(err)
 	}
 
+	//UNMARSHALL GENERIC RESPONSE
 	var responseData map[string]interface{}
 	err = jsoniter.Unmarshal([]byte(respRpc.(string)), &responseData)
 	if err != nil {
@@ -119,10 +140,13 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 
 	Message := responseData["Msg"].(string)
 
+	//CREATE HERTZ RESPONSE
 	resp := &api.Response{
 		Message: Message,
 		Flag:    req.GetFlag(),
 	}
+
+	//SEND HERTZ RESPONSE
 	c.JSON(consts.StatusOK, resp)
 }
 

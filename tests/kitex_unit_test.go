@@ -87,8 +87,8 @@ func NacosConfig() (client.Option, error) {
 		LogDir:              "/tmp/nacos/log/test",
 		CacheDir:            "/tmp/nacos/cache/test",
 		LogLevel:            "info",
-		Username:            "your-name",
-		Password:            "your-password",
+		// Username:            "your-name",
+		// Password:            "your-password",
 	}
 
 	naco_client, err := clients.NewNamingClient(
