@@ -16,7 +16,7 @@ func TestNacosServiceDiscovery(t *testing.T) {
 		wantPort float64
 	}{
 		{"Testing for ExampleService1", "ExampleService1", "127.0.0.1", 8888},
-		{"Testing for ExampleService1", "ExampleService2", "127.0.0.1", 8885},
+		{"Testing for ExampleService2", "ExampleService2", "127.0.0.1", 8885},
 	}
 
 	for _, tt := range tests {

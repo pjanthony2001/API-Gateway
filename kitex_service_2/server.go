@@ -33,8 +33,8 @@ func main() {
 		LogDir:              "/tmp/nacos/log/kitex2",
 		CacheDir:            "/tmp/nacos/cache/kitex2",
 		LogLevel:            "info",
-		Username:            "your-name",
-		Password:            "your-password",
+		// Username:            "your-name",
+		// Password:            "your-password",
 	}
 
 	cli, err := clients.NewNamingClient(
