@@ -2,39 +2,53 @@ package tests
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"testing"
 )
 
 func TestNacosServiceDiscovery(t *testing.T) {
-
-	resp, err := http.Get("http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=ExampleService")
-
-	if err != nil {
-		t.Fatalf("Error from making request %s", err.Error())
+	var tests = []struct {
+		name     string
+		query    string
+		wantIP   string
+		wantPort float64
+	}{
+		{"Testing for ExampleService1", "ExampleService1", "127.0.0.1", 8888},
+		{"Testing for ExampleService1", "ExampleService2", "127.0.0.1", 8885},
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		t.Fatalf("Error from reading response %s", err.Error())
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:8848/nacos/v1/ns/instance/list?serviceName=%s", tt.query))
 
-	t.Log(string(body))
+			if err != nil {
+				t.Fatalf("Error from making request %s", err.Error())
+			}
 
-	var sb map[string]interface{}
-	json.Unmarshal(body, &sb)
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatalf("Error from reading response %s", err.Error())
+			}
 
-	t.Log(sb)
+			t.Log(string(body))
 
-	data := sb["hosts"].([]interface{})[0].(map[string]interface{})
+			var sb map[string]interface{}
+			json.Unmarshal(body, &sb)
 
-	if data["ip"].(string) != "127.0.0.1" {
-		t.Errorf("Wrong IP addr for instance, given: %s", data["ip"].(string))
-	}
+			t.Log(sb)
 
-	if data["port"].(float64) != float64(8888) {
-		t.Errorf("Wrong port for instance, given: %f", data["port"].(float64))
+			data := sb["hosts"].([]interface{})[0].(map[string]interface{})
+
+			if data["ip"].(string) != tt.wantIP {
+				t.Errorf("Wrong IP addr for instance, given: %s", data["ip"].(string))
+			}
+
+			if data["port"].(float64) != tt.wantPort {
+				t.Errorf("Wrong port for instance, given: %f", data["port"].(float64))
+			}
+		})
 	}
 
 }

@@ -36,10 +36,20 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	service := c.Query("service")
+	if service == "" {
+		service = "1"
+	}
+
+	method := c.Query("method")
+	if method == "" {
+		method = "1"
+	}
+
 	fmt.Println(req.GetFlag())
 	fmt.Println(req.GetMessage())
 
-	p, err := generic.NewThriftFileProvider("../idl/example_service.thrift")
+	p, err := generic.NewThriftFileProvider("../idl/example_service1.thrift")
 	if err != nil {
 		panic(err)
 	}
@@ -58,8 +68,8 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		NamespaceId:         "public",
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
-		LogDir:              "/tmp/nacos/log",
-		CacheDir:            "/tmp/nacos/cache",
+		LogDir:              "/tmp/nacos/log/hertz",
+		CacheDir:            "/tmp/nacos/cache/hertz",
 		LogLevel:            "info",
 		Username:            "your-name",
 		Password:            "your-password",
@@ -76,7 +86,7 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	cli, err := genericclient.NewClient(
-		"ExampleService",
+		"ExampleService"+service,
 		g,
 		client.WithResolver(resolver.NewNacosResolver(naco_client)),
 		client.WithLoadBalancer(loadbalance.NewWeightedBalancer()),
@@ -86,7 +96,13 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 		panic(err)
 	}
 
-	respRpc, err := cli.GenericCall(ctx, "ExampleMethod", ParseRequest(req.GetMessage())) //pass json through
+	jsonString, err := ParseRequest(req.GetMessage())
+
+	if err != nil {
+		panic(err)
+	}
+
+	respRpc, err := cli.GenericCall(ctx, "ExampleMethod"+method, jsonString) //pass json through
 	if err != nil {
 		panic(err)
 	}
@@ -110,6 +126,11 @@ func Echo(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, resp)
 }
 
-func ParseRequest(Message string) (json string) {
-	return fmt.Sprintf("{\"Msg\" : \"%s\"}", Message)
+func ParseRequest(Message string) (json string, err error) {
+	return jsoniter.MarshalToString(
+		struct {
+			Msg string
+		}{
+			Msg: Message,
+		})
 }

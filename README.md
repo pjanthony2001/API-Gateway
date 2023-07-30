@@ -71,28 +71,33 @@ The interaction flow within the system is as follows:
 1) Open a terminal window and navigate to `hertz-server` directory
 2) `go run .` to start the server on `localhost:8080`
 
-   
 ## 3.2 Set up a Nacos Registry Server
 1) Open a terminal window in the directory where Nacos was installed
 2) Navigate to the `/nacos/bin` directory
 3) `./startup.cmd -m standalone` to start the server on `localhost:8848`
 
-## 3.1 Set up the Kitex Service
-1) Open a terminal window and navigate to the `kitex_service` directory
+## 3.1 Set up the Kitex Services
+1) Open a terminal window and navigate to the `kitex_service1` directory
 2) `go run .` to start the server on `localhost:8888`
+1) Open a terminal window and navigate to the `kitex_service2` directory
+2) `go run .` to start the server on `localhost:8885`
 
 ## 3.3 Send a HTTP Request
 1) Send a GET request with the following command `curl -X GET localhost:8080/echo/query --json <JSON HERE>`
 2) JSON should have `"Message" : "<string>"` and `"Flag" : <integer>`, following the structure in the `hertz.thrift` idl
 3) Ensure that your JSON request utilises `'{"<key>" : "<element>"}'` structure. Ex: `'{"Message" : "Hallo"}'`
 4) Alternatively you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query --json "@message.json"`
+5) Additionally, you can select which service you want to process the data by specifying a query `service=X`, where `X` is either `1` or `2`. You can also select which method you want to process the data by specifying a query `method=y` where `Y` is `1` or `2` for `Service 1` but `Y` is `1` for `Service 2`
+6) Authentication is required for `Service 2`, a query `token=token` must be passed in the URL. For example, you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query?service=2&method=1&token=token --json "@message.json"`
 
 
 # 4 Testing
 
 ## 4.1 How to run tests
-1) Navigate to the `tests` directory
-2) `go test -v` to run all the tests in a verbose format
+1) Set up all the servers as seen in Step 3
+2) Navigate to the `tests` directory
+3) `go test -v -benchtime 20s -bench .` to run all tests in a verbose format
+NOTE: As there are nearly 200 individual tests and benchmarking, there will be some time delay for the tests to complete
 
 # 5 Design Document
 The design document, which includes the projected timeline at the end, can be accessed here : 
