@@ -87,7 +87,7 @@ The interaction flow within the system is as follows:
 2) JSON should have `"Message" : "<string>"` and `"Flag" : <integer>`, following the structure in the `hertz.thrift` idl
 3) Ensure that your JSON request utilises `'{"<key>" : "<element>"}'` structure. Ex: `'{"Message" : "Hallo"}'`
 4) Alternatively you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query --json "@message.json"`
-5) Additionally, you can select which service you want to process the data by specifying a query `service=X`, where `X` is either `1` or `2`. You can also select which method you want to process the data by specifying a query `method=y` where `Y` is `1` or `2` for `Service 1` but `Y` is `1` for `Service 2`
+5) Additionally, you can select which service you want to process the data by specifying a query `service=X`, where `X` is either `1` or `2`. You can also select which method you want to process the data by specifying a query `method=Y` where `Y` is `1` or `2` for `Service 1` but `Y` is `1` for `Service 2`
 6) Authentication is required for `Service 2`, a query `token=token` must be passed in the URL. For example, you can run the following command in the project directory: `curl -X GET localhost:8080/echo/query?service=2&method=1&token=token --json "@message.json"`
 
 
